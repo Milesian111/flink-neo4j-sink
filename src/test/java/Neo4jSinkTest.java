@@ -12,9 +12,9 @@ public class Neo4jSinkTest {
 
         // 2. 生成测试数据流
         DataStream<User> userStream = env.fromElements(
-                new User("u1", "zhc", 29),
-                new User("u2", "pnm", 25),
-                new User("u3", "zsy", 35)
+                new User("u1", "aaa", 29),
+                new User("u2", "bbb", 25),
+                new User("u4", "ccc", 35)
         );
 
 //        // 3. 转换为 Cypher 语句

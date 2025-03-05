@@ -113,8 +113,4 @@ public class Neo4jSink<T> extends RichSinkFunction<T> implements CheckpointedFun
         super.close();
     }
 
-    @FunctionalInterface
-    public interface Neo4jStatementBuilder<T> extends Serializable {
-        CypherStatement build(T element);
-    }
 }
