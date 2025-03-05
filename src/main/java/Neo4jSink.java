@@ -1,20 +1,17 @@
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
-import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.neo4j.driver.*;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Neo4jSink<T> extends RichSinkFunction<T> implements CheckpointedFunction, CheckpointListener {
+public class Neo4jSink<T> extends RichSinkFunction<T> implements CheckpointedFunction {
 
     private transient Driver neo4jDriver;
     private transient Session session;
@@ -96,12 +93,6 @@ public class Neo4jSink<T> extends RichSinkFunction<T> implements CheckpointedFun
                 bufferedElements.add(element);
             }
         }
-    }
-
-    // CheckpointListener 实现
-    @Override
-    public void notifyCheckpointComplete(long checkpointId) throws Exception {
-        // 可选：在检查点完成后执行额外操作
     }
 
     @Override
