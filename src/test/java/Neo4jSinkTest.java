@@ -1,3 +1,4 @@
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -11,13 +12,28 @@ public class Neo4jSinkTest {
 
         // 2. 生成测试数据流
         DataStream<User> userStream = env.fromElements(
-                new User("u1", "Alice", 30),
-                new User("u2", "Bob", 25),
-                new User("u3", "Charlie", 35)
+                new User("u1", "zhc", 29),
+                new User("u2", "pnm", 25),
+                new User("u3", "zsy", 35)
         );
 
-        // 3. 转换为 Cypher 语句
-        DataStream<CypherStatement> cypherStream = userStream.map(user -> {
+//        // 3. 转换为 Cypher 语句
+//        DataStream<CypherStatement> cypherStream = userStream.map(user -> {
+//            // 创建用户节点的 Cypher
+//            String query = "MERGE (u:User {id: $id}) SET u.name = $name, u.age = $age";
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("id", user.getId());
+//            params.put("name", user.getName());
+//            params.put("age", user.getAge());
+//            return new CypherStatement(query, params);
+//        });
+
+        // 4. 写入 Neo4j
+        userStream.addSink(new Neo4jSink<User>("bolt://localhost:7687",
+                "neo4j",
+                "12345678",
+                100,
+                user -> {
             // 创建用户节点的 Cypher
             String query = "MERGE (u:User {id: $id}) SET u.name = $name, u.age = $age";
             Map<String, Object> params = new HashMap<>();
@@ -25,10 +41,9 @@ public class Neo4jSinkTest {
             params.put("name", user.getName());
             params.put("age", user.getAge());
             return new CypherStatement(query, params);
-        });
-
-        // 4. 写入 Neo4j
-        cypherStream.sinkTo(new Neo4jSink());
+        },
+                TypeInformation.of(User.class)
+                ));
 
         // 5. 执行任务
         env.execute("Flink Neo4j Sink Demo");
