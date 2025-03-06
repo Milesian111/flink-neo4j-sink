@@ -1,3 +1,5 @@
+import hirson.sink.neo4j.CypherStatement;
+import hirson.sink.neo4j.Neo4jSink;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -18,14 +20,14 @@ public class Neo4jSinkTest {
         );
 
 //        // 3. 转换为 Cypher 语句
-//        DataStream<CypherStatement> cypherStream = userStream.map(user -> {
+//        DataStream<hirson.sink.neo4j.CypherStatement> cypherStream = userStream.map(user -> {
 //            // 创建用户节点的 Cypher
 //            String query = "MERGE (u:User {id: $id}) SET u.name = $name, u.age = $age";
 //            Map<String, Object> params = new HashMap<>();
 //            params.put("id", user.getId());
 //            params.put("name", user.getName());
 //            params.put("age", user.getAge());
-//            return new CypherStatement(query, params);
+//            return new hirson.sink.neo4j.CypherStatement(query, params);
 //        });
 
         // 4. 写入 Neo4j

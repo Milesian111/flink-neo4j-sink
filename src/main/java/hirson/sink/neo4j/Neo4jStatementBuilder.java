@@ -1,3 +1,5 @@
+package hirson.sink.neo4j;
+
 import java.io.Serializable;
 
 
@@ -8,7 +10,7 @@ import java.io.Serializable;
  *  params.put("id", user.getId());
  *  params.put("name", user.getName());
  *  params.put("age", user.getAge());
- *  return new CypherStatement(query, params);
+ *  return new hirson.sink.neo4j.CypherStatement(query, params);
  * @param <T>
  */
 public interface Neo4jStatementBuilder<T> extends Serializable {

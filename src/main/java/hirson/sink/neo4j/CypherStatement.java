@@ -1,4 +1,4 @@
-
+package hirson.sink.neo4j;
 
 import java.util.Map;
 
