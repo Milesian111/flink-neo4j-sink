@@ -8,12 +8,13 @@ public class Neo4jSinkTest {
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+//        env.enableCheckpointing(60000);
 
         // 2. 生成测试数据流
         DataStream<User> userStream = env.fromElements(
-                new User("u1", "Alice", 30),
-                new User("u2", "Bob", 25),
-                new User("u3", "Charlie", 35)
+                new User("123", "Alice", 30),
+                new User("234", "Bob", 25),
+                new User("345", "Charlie", 35)
         );
 
         // 3. 转换为 Cypher 语句
@@ -27,8 +28,14 @@ public class Neo4jSinkTest {
             return new CypherStatement(query, params);
         });
 
+
+        Neo4jConfig config = new Neo4jConfig();
+        config.setUri("bolt://localhost:7687");
+        config.setUser("neo4j");
+        config.setPassword("12345678");
+        config.setBatchSize(500);
         // 4. 写入 Neo4j
-        cypherStream.sinkTo(new Neo4jSink());
+        cypherStream.sinkTo(new Neo4jSink(config));
 
         // 5. 执行任务
         env.execute("Flink Neo4j Sink Demo");

@@ -15,22 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.apache.flink.api.connector.sink2.*;
+
+import org.apache.flink.api.connector.sink2.Sink;
+import org.apache.flink.api.connector.sink2.TwoPhaseCommittingSink;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
-
 import java.io.IOException;
+import java.util.Optional;
 
-public class Neo4jSink implements Sink<CypherStatement> {
+public class Neo4jSink implements TwoPhaseCommittingSink<CypherStatement, Neo4jCommittable>,
+        Sink<CypherStatement> {
 
+    private final Neo4jConfig config;
 
-    @Override
-    public SinkWriter<CypherStatement> createWriter(InitContext initContext) throws IOException {
-        return new Neo4jSinkWriter();
+    public Neo4jSink(Neo4jConfig config) {
+        this.config = config;
     }
 
     @Override
-    public SinkWriter<CypherStatement> createWriter(WriterInitContext context) throws IOException {
-        return Sink.super.createWriter(context);
+    public Neo4jSinkWriter createWriter(InitContext context) throws IOException {
+        return new Neo4jSinkWriter(config);
     }
 
+    @Override
+    public Neo4jCommitter createCommitter() throws IOException {
+        return new Neo4jCommitter(config);
+    }
+
+    @Override
+    public SimpleVersionedSerializer<Neo4jCommittable> getCommittableSerializer() {
+        return new Neo4jCommittableSerializer();
+    }
 }

@@ -1,8 +1,9 @@
 
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class CypherStatement {
+public class CypherStatement implements Serializable {
     private final String query;
     private final Map<String, Object> parameters;
 
