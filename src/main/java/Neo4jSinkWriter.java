@@ -1,6 +1,5 @@
+
 import org.apache.flink.api.connector.sink2.SinkWriter;
-
-
 import org.neo4j.driver.*;
 
 import java.io.IOException;
