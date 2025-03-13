@@ -1,18 +1,17 @@
 package hirson.sink.neo4j;
 
 import org.apache.flink.api.connector.sink2.SinkWriter;
+import org.apache.flink.types.Row;
 import org.neo4j.driver.*;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class Neo4jSinkWriter implements SinkWriter<Map<String, Object>>, Serializable {
+public class Neo4jSinkWriter implements SinkWriter<Row>, Serializable {
     private transient Driver driver;
     private transient Session session;
     private transient Transaction transaction;
-    private final List<Map<String, Object>> batch = new ArrayList<>();
+    private final List<Row> batch = new ArrayList<>();
     private final String uri;
     private final String user;
     private final String password;
@@ -26,15 +25,8 @@ public class Neo4jSinkWriter implements SinkWriter<Map<String, Object>>, Seriali
     }
 
     @Override
-    public void write(Map<String, Object> element, Context context) throws IOException, InterruptedException {
+    public void write(Row element, Context context) throws IOException, InterruptedException {
         // 数据格式校验
-        if (!element.containsKey("query") || !element.containsKey("parameters")) {
-            throw new IllegalArgumentException("Map must contain 'query' and 'parameters' keys");
-        }
-        if (!(element.get("query") instanceof String) || !(element.get("parameters") instanceof Map)) {
-            throw new IllegalArgumentException("'query' must be String and 'parameters' must be Map");
-        }
-
         batch.add(element);
         if (batch.size() >= batchSize) {
             flush(true);
@@ -50,9 +42,9 @@ public class Neo4jSinkWriter implements SinkWriter<Map<String, Object>>, Seriali
         }
 
         try {
-            for (Map<String, Object> stmt : batch) {
-                String query = (String) stmt.get("query");
-                Map<String, Object> parameters = (Map<String, Object>) stmt.get("parameters");
+            for (Row stmt : batch) {
+                String query = (String) stmt.getField(0);
+                Map<String, Object> parameters = convertRowToMap(stmt);
                 transaction.run(query, parameters);
             }
             transaction.commit();
@@ -65,6 +57,18 @@ public class Neo4jSinkWriter implements SinkWriter<Map<String, Object>>, Seriali
             session.close();
             driver.close();
         }
+    }
+
+    private Map<String, Object> convertRowToMap(Row stmt) {
+        Map<String, Object> params = new HashMap<>();
+        Row paramsKeyRow = (Row)stmt.getField(1);
+        Row paramsValueRow = (Row)stmt.getField(2);
+        for (int pos = 0; pos < paramsKeyRow.getArity(); pos++) {
+            String key =(String) paramsKeyRow.getField(pos);
+            Object value = paramsValueRow.getField(pos);
+            params.put(key, value);
+        }
+        return params;
     }
 
     @Override

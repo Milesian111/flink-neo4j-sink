@@ -1,10 +1,12 @@
 package hirson.sink.neo4j;
 
 import org.apache.flink.api.connector.sink2.*;
-import java.io.IOException;
-import java.util.Map;
+import org.apache.flink.types.Row;
 
-public class Neo4jSink implements Sink<Map<String, Object>> {
+import java.io.IOException;
+
+
+public class Neo4jSink implements Sink<Row> {
     private final String uri;
     private final String user;
     private final String password;
@@ -18,7 +20,7 @@ public class Neo4jSink implements Sink<Map<String, Object>> {
     }
 
     @Override
-    public SinkWriter<Map<String, Object>> createWriter(InitContext initContext) throws IOException {
+    public SinkWriter<Row> createWriter(InitContext initContext) throws IOException {
         return new Neo4jSinkWriter(uri, user, password, batchSize);
     }
 }

@@ -1,57 +1,29 @@
 import hirson.sink.neo4j.Neo4jSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.types.Row;
+import org.apache.flink.types.RowKind;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Neo4jSinkTest {
+
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // 2. 生成测试数据流
         String query = "MERGE (u:User {id: $id}) SET u.name = $name, u.age = $age";
-//        String query = "MERGE (u:User {id: $id}) DELETE u";
-        Map<String, Object> params1 = new HashMap<>();
-        Map<String, Object> params2 = new HashMap<>();
-        Map<String, Object> params3 = new HashMap<>();
-        params1.put("id", "u1");
-        params1.put("name", "666");
-        params1.put("age", 30);
+        Row keyRow1 = Row.of("id","name","age");
+        Row valueRow1 = Row.of( "1001", "Alice", 18);
 
-        params2.put("id", "u2");
-        params2.put("name", "123");
-        params2.put("age", 25);
+        Row cypherStatement1 =Row.of(query,keyRow1,valueRow1);
 
-        params3.put("id", "u3");
-        params3.put("name", "777");
-        params3.put("age", 35);
-
-        Map<String, Object> cypherStatement1 = new HashMap<>();
-        Map<String, Object> cypherStatement2 = new HashMap<>();
-        Map<String, Object> cypherStatement3 = new HashMap<>();
-        cypherStatement1.put("query",query);
-        cypherStatement1.put("parameters", params1);
-        cypherStatement2.put("query",query);
-        cypherStatement2.put("parameters", params2);
-        cypherStatement3.put("query",query);
-        cypherStatement3.put("parameters", params3);
-
-        DataStream<Map<String, Object>> cypherStream = env.fromElements(
-                cypherStatement1,cypherStatement2,cypherStatement3
+        DataStream<Row> cypherStream = env.fromElements(
+                cypherStatement1
         );
-
-        // 3. 转换为 Cypher 语句
-//        DataStream<hirson.sink.neo4j.CypherStatement> cypherStream = userStream.map(user -> {
-//            // 创建用户节点的 Cypher
-//            String query = "MERGE (u:User {id: $id}) SET u.name = $name, u.age = $age";
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("id", user.getId());
-//            params.put("name", user.getName());
-//            params.put("age", user.getAge());
-//            return new hirson.sink.neo4j.CypherStatement(query, params);
-//        });
 
         // 4. 写入 Neo4j
 
