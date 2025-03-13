@@ -14,23 +14,30 @@ public class Neo4jSinkWriter implements SinkWriter<CypherStatement>, Serializabl
     private transient Session session;
     private transient Transaction transaction;
     private final List<CypherStatement> batch = new ArrayList<>();
+    private final String uri;
+    private final String user;
+    private final String password;
+    private final int batchSize;
 
+    public Neo4jSinkWriter(String uri, String user, String password, int batchSize) {
+        this.uri = uri;
+        this.user = user;
+        this.password = password;
+        this.batchSize = batchSize;
+    }
     @Override
     public void write(CypherStatement element, Context context) throws IOException, InterruptedException {
         batch.add(element);
-        if (batch.size() >= 100) { // 批量写入，提升性能
+        if (batch.size() >= batchSize) { // 批量写入，提升性能
             flush(true);
         }
     }
 
     @Override
     public void flush(boolean b) throws IOException, InterruptedException {
-        String dbUri = "bolt://localhost:7687";
-        String dbUser = "neo4j";
-        String dbPassword = "12345678";
 
         if (driver == null) {
-            driver = GraphDatabase.driver(dbUri, AuthTokens.basic(dbUser, dbPassword));
+            driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password));
             session = driver.session();
             transaction = session.beginTransaction();
         }

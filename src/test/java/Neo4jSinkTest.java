@@ -11,9 +11,9 @@ public class Neo4jSinkTest {
 
         // 2. 生成测试数据流
         DataStream<User> userStream = env.fromElements(
-                new User("u1", "Alice", 30),
+                new User("u1", "Eric", 30),
                 new User("u2", "Bob", 25),
-                new User("u3", "Charlie", 35)
+                new User("u3", "Kevin", 35)
         );
 
         // 3. 转换为 Cypher 语句
@@ -28,7 +28,7 @@ public class Neo4jSinkTest {
         });
 
         // 4. 写入 Neo4j
-        cypherStream.sinkTo(new Neo4jSink());
+        cypherStream.sinkTo(new Neo4jSink("bolt://localhost:7687", "neo4j", "12345678", 100));
 
         // 5. 执行任务
         env.execute("Flink Neo4j Sink Demo");
