@@ -1,9 +1,7 @@
+
 package hirson.sink.neo4j;
 
-
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Neo4jSinkBuilder implements Serializable {
     private String uri;
